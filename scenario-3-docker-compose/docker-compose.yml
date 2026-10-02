@@ -1,0 +1,39 @@
+services:
+  orders-api:
+    build: ./orders-api
+    environment:
+      PORT: 3000
+      DB_HOST: mysql
+      DB_NAME: ordersdb
+      DB_USER: ordersuser
+      DB_PASSWORD: orderpass
+    ports:
+      - "3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - orders-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ordersdb
+      MYSQL_USER: ordersuser
+      MYSQL_PASSWORD: orderpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orders-network
+
+volumes:
+  mysql-data:
+
+networks:
+  orders-network:
